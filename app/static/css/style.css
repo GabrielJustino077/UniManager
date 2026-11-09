@@ -1,0 +1,75 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #F8FAFC;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Layout principal */
+.d-flex {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background: #1E3A8A;
+    color: white;
+    padding: 30px 20px;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sidebar nav a {
+    color: white;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.sidebar nav a:hover {
+    background: #2563EB;
+}
+
+/* Conteúdo */
+.content {
+    flex: 1;
+    padding: 40px;
+}
+
+.card {
+    border: none;
+    border-radius: 16px;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+.card h3 {
+    color: #2563EB;
+    font-weight: bold;
+}
+
+.card p {
+    color: #6B7280;
+    margin-bottom: 0;
+}
