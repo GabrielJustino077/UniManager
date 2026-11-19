@@ -1,14 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from app.database.database import db
+import os
+from dotenv import load_dotenv
+
 
 def create_app():
 
     app = Flask(__name__)
 
-    app.config["SECRET_KEY"] = "unimanager-chave-secreta"
+    load_dotenv()  #Carrega as variáveis de ambiente do arquivo .env
+    app.config["SECRET_KEY"] = os.environ["SECRETY_KEY"]  
 
     #Configuração do banco de dados
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///unimanager.db"
@@ -17,8 +19,9 @@ def create_app():
     #Inicializa o banco
     db.init_app(app)
 
-    #Importa o modelo
+    #Importa os modelos
     from app.models.usuario import Usuario
+    from app.models.curso import Curso
 
     #Cria as tabelas
     with app.app_context():
@@ -39,7 +42,8 @@ def create_app():
             usuario = Usuario.query.filter_by(email=email).first()
 
             if usuario and check_password_hash(usuario.senha, senha):
-
+                session.clear()
+                session["usuario_id"] = usuario.id
                 return redirect(url_for("dashboard"))
 
             else:
@@ -55,6 +59,12 @@ def create_app():
 
     @app.route("/dashboard")
     def dashboard():
+
+        print("Dashboard acessado")
+        print("Usuário autenticado:", session.get("usuario_id"))
+
+        if "usuario_id" not in session:
+            return redirect(url_for("home"))
 
         return render_template("dashboard.html")
 
@@ -90,5 +100,39 @@ def create_app():
             "cadastro.html",
             mensagem=mensagem
         )
+
+    @app.route("/cursos/cadastrar", methods=["GET", "POST"])
+    def cadastrar_curso():
+
+        if "usuario_id" not in session:
+            return redirect(url_for("home"))
+
+        if request.method == "POST":
+
+            #Recebe os dados do formulário
+            nome = (request.form.get("nome") or "").strip()
+            duracao = request.form.get("duracao")
+
+            #Converte a duração para inteiro
+            try:
+                duracao = int(duracao)
+            except (ValueError, TypeError):
+                return "Duração inválida", 400
+
+            if not nome or duracao <1 or len(nome)> 100:
+                return "Dados inválidos", 400
+
+            #Cria um objeto Curso
+            novo_curso = Curso(
+                nome=nome,
+                duracao=duracao
+            )
+
+            db.session.add(novo_curso)
+            db.session.commit()
+
+            return redirect(url_for("cadastrar_curso"))
+
+        return render_template("cadastrar_curso.html")
 
     return app
